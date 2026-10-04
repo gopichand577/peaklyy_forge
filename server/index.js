@@ -19,6 +19,16 @@ app.use("/api/compiler/run", executionRateLimiter);
 app.use("/api/judge/run", executionRateLimiter);
 app.use("/api/judge/submit", executionRateLimiter);
 
+// Health check endpoint
+app.get(["/", "/api", "/api/health"], (req, res) => {
+  res.json({
+    status: "ok",
+    service: "Peaklyy Forge Backend & Online Judge",
+    uptime: `${Math.round(process.uptime())}s`,
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // Mount P0 Compiler routes
 app.use("/api/compiler", compilerRoutes);
 
