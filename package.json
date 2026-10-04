@@ -1,0 +1,10 @@
+{
+  "name": "peaklyy-forge",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix client run build",
+    "client:dev": "npm --prefix client run dev",
+    "server:dev": "npm --prefix server run dev"
+  }
+}

@@ -1,0 +1,62 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Local environment & sensitive credentials
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+!.env.example
+
+# Build & compiled outputs
+dist/
+dist-ssr/
+build/
+*.local
+out/
+
+# Server execution runtime temp files & local runtime binaries
+server/temp/
+temp/
+server/runtimes/
+runtimes/
+*.class
+*.exe
+*.o
+*.out
+*.pyc
+__pycache__/
+
+# Logs & debugging
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor & IDE configs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS metadata & caches
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Vercel deployment artifacts
+.vercel/

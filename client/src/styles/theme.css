@@ -1,0 +1,52 @@
+:root {
+  --bg: #0a090e;
+  --bg-darker: #07060a;
+  --surface: #0e0d13;
+  --surface-2: #131219;
+  --surface-card: #111017;
+  --surface-hover: rgba(255, 255, 255, 0.05);
+  
+  --line: #1e1d28;
+  --line-light: rgba(255, 255, 255, 0.12);
+  --line-red: rgba(239, 68, 68, 0.5);
+  --line-red-glow: rgba(239, 68, 68, 0.25);
+  
+  --text: #f8fafc;
+  --text-dim: #cbd5e1;
+  --muted: #8c8696;
+  --muted-dark: #585362;
+  
+  /* Crimson / Ruby Forge Accent */
+  --red: #ef4444;
+  --red-hover: #ff2a4b;
+  --red-dark: #dc2626;
+  --red-glow: rgba(239, 68, 68, 0.45);
+  --red-subtle: rgba(239, 68, 68, 0.14);
+  --red-pill: rgba(239, 68, 68, 0.22);
+
+  /* Exact Sidebar Smoke Overlay Palette */
+  --sidebar-base: #08070b;
+  --sidebar-smoke-strong: #ef4444;
+  --sidebar-smoke-medium: #b91c1c;
+  --sidebar-smoke-soft: #881337;
+  --sidebar-smoke-faint: #4c0519;
+  
+  /* Utility Status Colors */
+  --green: #10b981;
+  --green-bg: rgba(16, 185, 129, 0.12);
+  --green-border: rgba(16, 185, 129, 0.3);
+  
+  --orange: #f59e0b;
+  --orange-bg: rgba(245, 158, 11, 0.12);
+  --orange-border: rgba(245, 158, 11, 0.3);
+  
+  --blue: #06b6d4;
+  --blue-bg: rgba(6, 182, 212, 0.12);
+  --blue-border: rgba(6, 182, 212, 0.25);
+  
+  --purple: #a855f7;
+  --purple-bg: rgba(168, 85, 247, 0.12);
+  --purple-border: rgba(168, 85, 247, 0.3);
+  
+  --danger: #ef4444;
+}
