@@ -8,6 +8,7 @@ const judgeRoutes = require("./routes/judgeRoutes");
 const monitoringRoutes = require("./routes/monitoringRoutes");
 const { executionRateLimiter } = require("./utils/rateLimiter");
 const { startInteractiveSession } = require("./services/interactiveExecution");
+const { installJdk } = require("./scripts/install-jdk");
 
 const app = express();
 
@@ -116,4 +117,7 @@ wss.on("connection", (ws) => {
 server.listen(PORT, () => {
   console.log(`🚀 Peaklyy Forge running on http://localhost:${PORT}`);
   console.log(`⚡ WebSocket interactive terminal ready on ws://localhost:${PORT}/ws/compiler`);
+  installJdk().catch((err) => {
+    console.error("[JDK Setup] Error during startup JDK check:", err.message);
+  });
 });
