@@ -9,6 +9,26 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import DifficultyBadge from "../common/DifficultyBadge";
+import CustomSelect from "../common/CustomSelect";
+
+const TOPIC_OPTIONS = [
+  { label: "All Topics", value: "All" },
+  { label: "Arrays", value: "Arrays" },
+  { label: "Strings", value: "Strings" },
+  { label: "Hash Table", value: "Hash Table" },
+  { label: "Math", value: "Math" },
+  { label: "Linked List", value: "Linked List" },
+  { label: "Dynamic Programming", value: "Dynamic Programming" },
+  { label: "Stack", value: "Stack" },
+  { label: "Two Pointers", value: "Two Pointers" },
+  { label: "Binary Search", value: "Binary Search" },
+];
+
+const STATUS_OPTIONS = [
+  { label: "All Status", value: "All" },
+  { label: "Solved Only", value: "Solved" },
+  { label: "Unsolved Only", value: "Unsolved" },
+];
 
 export default function ProblemCatalog({
   problemsList = [],
@@ -149,36 +169,17 @@ export default function ProblemCatalog({
         </div>
 
         <div className="catalog-dropdown-filters">
-          <div className="dropdown-filter-wrap">
-            <select
-              value={filterTopic}
-              onChange={(e) => setFilterTopic(e.target.value)}
-              className="forge-dropdown-select"
-            >
-              <option value="All">All Topics</option>
-              <option value="Arrays">Arrays</option>
-              <option value="Strings">Strings</option>
-              <option value="Hash Table">Hash Table</option>
-              <option value="Math">Math</option>
-              <option value="Linked List">Linked List</option>
-              <option value="Dynamic Programming">Dynamic Programming</option>
-              <option value="Stack">Stack</option>
-              <option value="Two Pointers">Two Pointers</option>
-              <option value="Binary Search">Binary Search</option>
-            </select>
-          </div>
+          <CustomSelect
+            value={filterTopic}
+            options={TOPIC_OPTIONS}
+            onChange={(val) => setFilterTopic(val)}
+          />
 
-          <div className="dropdown-filter-wrap">
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="forge-dropdown-select"
-            >
-              <option value="All">All Status</option>
-              <option value="Solved">Solved Only</option>
-              <option value="Unsolved">Unsolved Only</option>
-            </select>
-          </div>
+          <CustomSelect
+            value={filterStatus}
+            options={STATUS_OPTIONS}
+            onChange={(val) => setFilterStatus(val)}
+          />
         </div>
       </div>
 

@@ -196,14 +196,15 @@ export function EditorProvider({ children }) {
       return (
         JSON.parse(localStorage.getItem("peaklyy-forge-editor-settings")) || {
           fontSize: 14,
-          tabSize: 4,
+          tabSize: 2,
           wordWrap: "on",
           minimap: false,
           lineNumbers: "on",
+          autoSave: true,
         }
       );
     } catch {
-      return { fontSize: 14, tabSize: 4, wordWrap: "on", minimap: false, lineNumbers: "on" };
+      return { fontSize: 14, tabSize: 2, wordWrap: "on", minimap: false, lineNumbers: "on", autoSave: true };
     }
   });
 
@@ -239,6 +240,23 @@ export function EditorProvider({ children }) {
     document.documentElement.setAttribute("data-theme", theme);
   }, [theme]);
 
+  // Accent Color State
+  const [accentColor, setAccentColorState] = useState(() => {
+    try {
+      return localStorage.getItem("peaklyy-forge-accent") || "#ef4444";
+    } catch {
+      return "#ef4444";
+    }
+  });
+
+  const setAccentColor = useCallback((color) => {
+    setAccentColorState(color);
+    try {
+      localStorage.setItem("peaklyy-forge-accent", color);
+      document.documentElement.style.setProperty("--red", color);
+    } catch {}
+  }, []);
+
   // Toast Notification State
   const [toast, setToast] = useState(null);
   const showToast = useCallback((message, type = "info") => {
@@ -261,6 +279,260 @@ export function EditorProvider({ children }) {
       setTargetErrorLine({ line, col, timestamp: Date.now() });
     }
   }, []);
+
+  // =========================================================================
+  // PROFILE, NOTIFICATIONS, COMPILER SETTINGS & ACTIVITY PERSISTENCE
+  // =========================================================================
+  const PROFILE_KEY = "peaklyy-forge-profile";
+  const NOTIFICATIONS_KEY = "peaklyy-forge-notifications";
+  const ACTIVITY_KEY = "peaklyy-forge-activity-stats";
+  const COMPILER_SETTINGS_KEY = "peaklyy-forge-compiler-settings";
+  const NOTIF_SETTINGS_KEY = "peaklyy-forge-notification-settings";
+
+  // 1. Profile State
+  const [profile, setProfileState] = useState(() => {
+    try {
+      return (
+        JSON.parse(localStorage.getItem(PROFILE_KEY)) || {
+          displayName: "Gaurav",
+          title: "Developer",
+          bio: "Passionate about coding and learning new technologies.",
+          avatarUrl: "",
+        }
+      );
+    } catch {
+      return {
+        displayName: "Gaurav",
+        title: "Developer",
+        bio: "Passionate about coding and learning new technologies.",
+        avatarUrl: "",
+      };
+    }
+  });
+
+  const updateProfile = useCallback((newProfile) => {
+    setProfileState((prev) => {
+      const updated = { ...prev, ...newProfile };
+      try {
+        localStorage.setItem(PROFILE_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  }, []);
+
+  // 2. Activity Stats State
+  const [activityStats, setActivityStatsState] = useState(() => {
+    try {
+      return (
+        JSON.parse(localStorage.getItem(ACTIVITY_KEY)) || {
+          compilerRuns: 0,
+          practiceSessions: 0,
+          languagesUsed: [],
+          recentActivity: [],
+        }
+      );
+    } catch {
+      return {
+        compilerRuns: 0,
+        practiceSessions: 0,
+        languagesUsed: [],
+        recentActivity: [],
+      };
+    }
+  });
+
+  const recordActivity = useCallback(({ type, title, lang }) => {
+    setActivityStatsState((prev) => {
+      const compilerRuns = type === "compiler" ? (prev.compilerRuns || 0) + 1 : (prev.compilerRuns || 0);
+      const practiceSessions = type === "practice" ? (prev.practiceSessions || 0) + 1 : (prev.practiceSessions || 0);
+      const languagesUsed = Array.from(new Set([...(prev.languagesUsed || []), lang].filter(Boolean)));
+      
+      const newEntry = {
+        id: `act-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        type,
+        title,
+        timestamp: new Date().toISOString(),
+        lang: lang || "code",
+      };
+
+      const recentActivity = [newEntry, ...(prev.recentActivity || [])].slice(0, 15);
+
+      const updated = {
+        compilerRuns,
+        practiceSessions,
+        languagesUsed,
+        recentActivity,
+      };
+
+      try {
+        localStorage.setItem(ACTIVITY_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  }, []);
+
+  const [problemsList, setProblemsList] = useState([]);
+
+  // Compute solved problems dynamically from problemsList
+  const problemsSolvedCount = useMemo(() => {
+    if (!Array.isArray(problemsList)) return 0;
+    return problemsList.filter((p) => p.isSolved || p.status === "SOLVED").length;
+  }, [problemsList]);
+
+  // 3. Notifications State
+  const [notifications, setNotificationsState] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem(NOTIFICATIONS_KEY)) || [];
+    } catch {
+      return [];
+    }
+  });
+
+  const unreadCount = useMemo(() => {
+    return notifications.filter((n) => !n.read).length;
+  }, [notifications]);
+
+  const addNotification = useCallback(({ title, message, type = "info" }) => {
+    setNotificationsState((prev) => {
+      const newNotif = {
+        id: `notif-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        title,
+        message,
+        type,
+        time: new Date().toISOString(),
+        read: false,
+      };
+      const updated = [newNotif, ...prev].slice(0, 30);
+      try {
+        localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  }, []);
+
+  const markNotificationRead = useCallback((id) => {
+    setNotificationsState((prev) => {
+      const updated = prev.map((n) => (n.id === id ? { ...n, read: true } : n));
+      try {
+        localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  }, []);
+
+  const markAllNotificationsRead = useCallback(() => {
+    setNotificationsState((prev) => {
+      const updated = prev.map((n) => ({ ...n, read: true }));
+      try {
+        localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  }, []);
+
+  const clearNotifications = useCallback(() => {
+    setNotificationsState([]);
+    try {
+      localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify([]));
+    } catch {}
+  }, []);
+
+  // 4. Compiler Settings State
+  const [compilerSettings, setCompilerSettingsState] = useState(() => {
+    try {
+      return (
+        JSON.parse(localStorage.getItem(COMPILER_SETTINGS_KEY)) || {
+          defaultLanguage: "python",
+          executionTimeout: "10 seconds",
+          outputLimit: "1 MB",
+          interactiveStdin: true,
+        }
+      );
+    } catch {
+      return {
+        defaultLanguage: "python",
+        executionTimeout: "10 seconds",
+        outputLimit: "1 MB",
+        interactiveStdin: true,
+      };
+    }
+  });
+
+  const updateCompilerSettings = useCallback((newSettings) => {
+    setCompilerSettingsState((prev) => {
+      const updated = { ...prev, ...newSettings };
+      try {
+        localStorage.setItem(COMPILER_SETTINGS_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  }, []);
+
+  // 5. Notification Settings State
+  const [notificationSettings, setNotificationSettingsState] = useState(() => {
+    try {
+      return (
+        JSON.parse(localStorage.getItem(NOTIF_SETTINGS_KEY)) || {
+          execution: true,
+          practice: true,
+          system: true,
+        }
+      );
+    } catch {
+      return { execution: true, practice: true, system: true };
+    }
+  });
+
+  const updateNotificationSettings = useCallback((newSettings) => {
+    setNotificationSettingsState((prev) => {
+      const updated = { ...prev, ...newSettings };
+      try {
+        localStorage.setItem(NOTIF_SETTINGS_KEY, JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  }, []);
+
+  // 6. Reset Preferences
+  const resetPreferences = useCallback(() => {
+    const defaultEditor = {
+      fontSize: 14,
+      tabSize: 2,
+      wordWrap: "on",
+      minimap: false,
+      lineNumbers: "on",
+      autoSave: true,
+    };
+    const defaultCompiler = {
+      defaultLanguage: "python",
+      executionTimeout: "10 seconds",
+      outputLimit: "1 MB",
+      interactiveStdin: true,
+    };
+    const defaultNotif = {
+      execution: true,
+      practice: true,
+      system: true,
+    };
+
+    setEditorSettingsState(defaultEditor);
+    setCompilerSettingsState(defaultCompiler);
+    setNotificationSettingsState(defaultNotif);
+    setThemeState("dark");
+    setAccentColorState("#ef4444");
+    document.documentElement.setAttribute("data-theme", "dark");
+    document.documentElement.style.setProperty("--red", "#ef4444");
+
+    try {
+      localStorage.setItem("peaklyy-forge-editor-settings", JSON.stringify(defaultEditor));
+      localStorage.setItem(COMPILER_SETTINGS_KEY, JSON.stringify(defaultCompiler));
+      localStorage.setItem(NOTIF_SETTINGS_KEY, JSON.stringify(defaultNotif));
+      localStorage.setItem(THEME_STORAGE_KEY, "dark");
+      localStorage.setItem("peaklyy-forge-accent", "#ef4444");
+    } catch {}
+
+    showToast("Preferences reset to default values.", "success");
+  }, [showToast]);
 
   const [isFileExplorerOpen, setIsFileExplorerOpenState] = useState(() => {
     try {
@@ -558,7 +830,6 @@ export function EditorProvider({ children }) {
   // =========================================================================
   // P1 ONLINE JUDGE STATE (Persisted across refreshes)
   // =========================================================================
-  const [problemsList, setProblemsList] = useState([]);
   const [practiceViewMode, setPracticeViewModeState] = useState(() => {
     try {
       return localStorage.getItem(PRACTICE_VIEW_MODE_KEY) || "workspace";
@@ -1487,6 +1758,26 @@ export function EditorProvider({ children }) {
     isCommandPaletteOpen,
     setCommandPaletteOpen,
     isSettingsOpen,
+    // Profile, Notifications & Settings
+    profile,
+    updateProfile,
+    activityStats,
+    recordActivity,
+    problemsSolvedCount,
+    notifications,
+    unreadCount,
+    addNotification,
+    markNotificationRead,
+    markAllNotificationsRead,
+    clearNotifications,
+    compilerSettings,
+    updateCompilerSettings,
+    notificationSettings,
+    updateNotificationSettings,
+    accentColor,
+    setAccentColor,
+    resetPreferences,
+
     setSettingsOpen,
     targetErrorLine,
     jumpToErrorLine,
@@ -1549,4 +1840,5 @@ export function useEditor() {
   if (!context) throw new Error("useEditor must be used inside EditorProvider");
   return context;
 }
+
 

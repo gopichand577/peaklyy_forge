@@ -12,6 +12,8 @@ import Navbar from "../components/layout/Navbar";
 import Sidebar from "../components/layout/Sidebar";
 import MonitoringView from "../components/monitoring/MonitoringView";
 import PracticeView from "../components/practice/PracticeView";
+import ProfileView from "../components/profile/ProfileView";
+import SettingsView from "../components/settings/SettingsView";
 import Preview from "../components/preview/Preview";
 import ProjectModal from "../components/projects/ProjectModal";
 import { useEditor } from "../context/EditorContext";
@@ -281,6 +283,10 @@ export default function Home() {
             </div>
           ) : activeNav === "monitoring" ? (
             <MonitoringView />
+          ) : activeNav === "profile" ? (
+            <ProfileView />
+          ) : activeNav === "settings" ? (
+            <SettingsView />
           ) : (
             <PracticeView />
           )}
